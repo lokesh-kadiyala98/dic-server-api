@@ -8,6 +8,7 @@ const mongodb = require('mongodb')
 const MongoClient = mongodb.MongoClient;
 
 app.use(cors())
+app.use(express.static('public/uploads'))
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
 
@@ -18,7 +19,7 @@ app.use('/upload_file', (req, res) => {
     
     const storage = multer.diskStorage({
         destination: function(req, file, cb) {
-            cb(null, 'public')
+            cb(null, 'public/uploads')
         },
         filename: function(req, file, cb) {
             var ext = path.extname(file.originalname)
