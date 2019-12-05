@@ -12,7 +12,7 @@ app.use(express.static('public/uploads'))
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000
 const DBurl = 'mongodb+srv://root:root@dic-gkoak.mongodb.net/test?retryWrites=true&w=majority';
 
 app.use('/upload_file', (req, res) => {
