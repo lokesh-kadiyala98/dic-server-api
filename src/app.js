@@ -95,10 +95,7 @@ app.get('/trainee_profile_data', (req, res) => {
 })
 
 app.post('/upload_file', upload.single('image'), (req, res) => {
-    
-    console.log("hi")
     res.send("SUCCESS")
-    
 })
 
 app.use('/submit_profile', (req, res) => {
