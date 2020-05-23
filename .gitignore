@@ -96,4 +96,8 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
+# File uploads from users
 public/uploads
+
+# Contains API keys
+.env

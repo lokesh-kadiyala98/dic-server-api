@@ -1,4 +1,6 @@
 const express = require('express')
+const aws = require('aws-sdk')
+const multerS3 = require('multer-s3')
 const bodyParser = require('body-parser')
 const path = require('path')
 const cors = require('cors')
@@ -7,6 +9,7 @@ const app = express()
 const mongodb = require('mongodb')
 const MongoClient = mongodb.MongoClient;
 const jwt = require('jsonwebtoken')
+require('dotenv').config()
 
 app.use(cors())
 app.use(express.static('public/uploads'))
@@ -14,7 +17,43 @@ app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
 
 const PORT = process.env.PORT || 5000
-const DBurl = 'mongodb+srv://root:root@dic-gkoak.mongodb.net/test?retryWrites=true&w=majority'
+const DBurl = process.env.DBurl
+
+aws.config.update({
+    secretAccessKey: process.env.secretAccessKey,
+    accessKeyId: process.env.accessKeyId,
+    region: 'ap-south-1'
+});
+
+const s3 = new aws.S3();
+const awsStorage = multerS3({
+    s3: s3,
+    bucket: 'dic-app',
+    key: function(req, file, cb) {
+        var ext = path.extname(file.originalname)
+        cb(null, req.query.imgID + ext);
+    }
+});
+
+const upload = multer({
+    storage: awsStorage,
+    limits: { fileSize: 5000000 },
+    fileFilter: function(req, file, cb) {
+        checkFileType(file, cb);
+    }
+});
+
+const checkFileType = (file, cb) => {
+    const filetypes = /jpeg|jpg|png|gif/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+  
+    if (mimetype && extname) {
+        return cb(null, true);
+    } else {
+        cb("Error: Images Only!");
+    }
+};
 
 app.get('/', (req, res) => {
     res.send({ message: "APIEndpoint up and running" }).status(200)
@@ -55,29 +94,11 @@ app.get('/trainee_profile_data', (req, res) => {
     })
 })
 
-app.use('/upload_file', (req, res) => {
+app.post('/upload_file', upload.single('image'), (req, res) => {
     
-    const storage = multer.diskStorage({
-        destination: function(req, file, cb) {
-            cb(null, 'public/uploads')
-        },
-        filename: function(req, file, cb) {
-            var ext = path.extname(file.originalname)
-            if(!file.originalname)
-                res.send({ error: 'File Upload: Something Went Wrong !!'})
-            cb(null, req.query.imgID + ext)
-        }
-    })
-    const upload = multer({ storage: storage }).single('image')
-
-    upload(req, res, (err) => {
-        if (err)
-            res.send({ error: 'File Upload: Something Went Wrong !!' })
-        else if (!req.file)
-            res.send({ error: 'File Upload: Image File is Required !!' })
-        else
-            res.send({ success: 'File Upload: Success !!' })
-    })
+    console.log("hi")
+    res.send("SUCCESS")
+    
 })
 
 app.use('/submit_profile', (req, res) => {
