@@ -73,7 +73,7 @@ app.get('/admin_login', (req, res) => {
                     res.status(200).send({token})
                 })
             } else
-                res.status(400).send({ error: err.message})
+                res.status(400).send({ error: "Username and Password doesnot match." })
         }
     })
 })
