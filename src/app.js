@@ -116,6 +116,32 @@ app.use('/submit_profile', (req, res) => {
     }
 })
 
+app.get('/heart_count', (req, res) => {
+    MongoClient.connect(DBurl, (err, client) => {
+        if(err)
+            res.send({ error: 'Database Connection: Seems like something went wrong!!' })
+        else {
+            const db = client.db('dic-app-database')
+            db.collection('heart_counter').find().toArray((err, items) => {
+                client.close()
+                res.send(items)
+            })
+        }
+    })
+})
+
+app.post('/heart_count', (req, res) => {
+    console.log(req.body)
+    MongoClient.connect(DBurl, (err, client) => {
+        if(err)
+            res.send({ error: 'Database Connection: Seems like something went wrong!!' })
+        else {
+            const db = client.db('dic-app-database')
+            db.collection('heart_counter').updateOne({_id: mongodb.ObjectID('5edfcfa6743cb4d66be0a4e3')}, {$set: {count: req.body.count}}, {upsert: true})
+        }
+    })
+})
+
 app.listen(PORT, () => {
     console.log('ON PORT ', PORT)
 })
